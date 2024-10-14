@@ -1,0 +1,69 @@
+﻿@using System.Reflection
+@{
+    var assembly = Assembly.GetEntryAssembly()!;
+    var version = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    @{
+        var title = ViewData["Title"] as string;
+
+        @if (string.IsNullOrEmpty(title))
+            title = "Gifts";
+        else
+            title = $"{title} - Gifts";
+    }
+
+    <title>@title</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/bootstrap-icons.min.css" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+
+<body class="container-xl min-vh-100 vstack gap-3 py-3 bg-body-tertiary">
+    <header>
+        <nav class="navbar navbar-expand-md bg-body border rounded shadow-sm">
+            <div class="container-fluid">
+                <a href="/" class="navbar-brand ms-sm-3 mb-0 h1">
+                    <i class="bi bi-gift"></i>
+                    Gifts
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-grow-1">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-xl-6 col-lg-7 col-md-8 col-sm-10 col-xs-12">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-center text-muted">
+        Gifts MVC @version
+    </footer>
+
+    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        const setTheme = () => {
+            document.documentElement.setAttribute('data-bs-theme', (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+        };
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', setTheme);
+        setTheme();
+    </script>
+</body>
+
+</html>

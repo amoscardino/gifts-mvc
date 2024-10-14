@@ -1,0 +1,42 @@
+@model PersonDto
+@{
+    var title = Model.Id == 0 ? "Add Person" : "Edit Person";
+    ViewData["Title"] = title;
+}
+
+@section Scripts {
+    <script src="~/lib/aspnet-client-validation/aspnet-validation.min.js"></script>
+    <script>
+        const v = new aspnetValidation.ValidationService()
+        v.bootstrap()
+    </script>
+}
+
+<form asp-controller="Person" asp-action="Save" method="post"
+    class="card mb-4 border rounded shadow">
+    <div class="card-header">@title</div>
+    <div class="card-body">
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="card-footer">
+        <div class="hstack justify-content-between">
+            @if (Model.Id != 0)
+            {
+                <button asp-action="Delete" class="btn btn-outline-danger">
+                    Delete
+                </button>
+            }
+
+            <button type="submit" class="btn btn-primary">
+                Save
+            </button>
+        </div>
+    </div>
+
+    <input type="hidden" asp-for="Id" />
+</form>

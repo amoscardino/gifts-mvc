@@ -1,0 +1,92 @@
+@model GiftDto
+@{
+    var title = Model.Id == 0 ? "Add Gift" : "Edit Gift";
+    ViewData["Title"] = title;
+}
+
+@section Scripts {
+    <script src="~/lib/aspnet-client-validation/aspnet-validation.min.js"></script>
+    <script>
+        const v = new aspnetValidation.ValidationService()
+        v.bootstrap()
+    </script>
+}
+
+<form asp-controller="Gift" asp-action="Save" method="post" class="card mb-4 border rounded shadow">
+    <div class="card-header">@title</div>
+    <div class="card-body">
+        <div class="mb-3">
+            <label asp-for="Person.Name" class="form-label">Person</label>
+            <input asp-for="Person.Name" readonly class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="mb-3">
+                    <label asp-for="Status" class="form-label"></label>
+                    <select asp-for="Status" asp-items="Html.GetEnumSelectList<GiftStatus>()"
+                        class="form-select"></select>
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="mb-3">
+                    <label asp-for="Price" class="form-label"></label>
+                    <input asp-for="Price" class="form-control" />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="URL" class="form-label"></label>
+            <div class="row align-items-stretch">
+                <div class="col">
+                    <input asp-for="URL" class="form-control" />
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.URL))
+                {
+                    <div class="col-3 align-self-end text-end">
+                        <a href="@Model.URL" target="_blank" class="btn btn-outline-secondary d-block">
+                            View
+                        </a>
+                    </div>
+                }
+            </div>
+            <span asp-validation-for="URL" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Notes" class="form-label"></label>
+            <textarea asp-for="Notes" class="form-control"></textarea>
+            <span asp-validation-for="Notes" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="card-footer">
+        <div class="hstack justify-content-between">
+            @if (Model.Id != 0)
+            {
+                <button asp-action="Delete" class="btn btn-outline-danger">
+                    Delete
+                </button>
+            }
+
+            <button type="submit" class="btn btn-primary">
+                Save
+            </button>
+        </div>
+    </div>
+
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="Person.Id" />
+    <input type="hidden" asp-for="Person.Name" />
+</form>

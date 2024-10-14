@@ -1,0 +1,93 @@
+﻿@model HomeViewModel
+
+<div class="hstack justify-content-end mb-3">
+    <a asp-controller="Person" asp-action="Index" class="btn btn-outline-primary btn-sm">
+        Add Person
+    </a>
+</div>
+
+@foreach (var person in Model.People)
+{
+    var gifts = Model.Gifts.Where(g => g.Person.Id == person.Id).ToList();
+
+    <div class="card mb-4 border rounded shadow">
+        <div class="card-header">@person.Name</div>
+
+        @if (gifts.Any())
+        {
+            <div class="list-group list-group-flush">
+                @foreach (var gift in gifts)
+                {
+                    var badgeClass = gift.Status switch
+                    {
+                        GiftStatus.Wrapped => "text-bg-success",
+                        GiftStatus.Arrived => "text-bg-primary",
+                        GiftStatus.Purchased => "text-bg-info",
+                        _ => "text-bg-secondary"
+                    };
+
+                    <a asp-controller="Gift" asp-action="Index" asp-route-id="@gift.Id" asp-route-personId="@person.Id"
+                        class="list-group-item list-group-item-action">
+                        <div class="hstack justify-content-between align-items-center">
+                            <span>
+                                @gift.Name
+
+                                <span class="badge @badgeClass">
+                                    @gift.Status.ToString()
+                                </span>
+                            </span>
+
+                            @if (gift is { Price: > 0 })
+                            {
+                                <span class="text-body-secondary">
+                                    @gift.Price.Value.ToString("C2")
+                                </span>
+                            }
+                        </div>
+                    </a>
+                }
+
+                <div class="list-group-item">
+                    <div class="hstack justify-content-between">
+                        <span>
+                            Total
+                        </span>
+
+                        <strong>
+                            @gifts.Sum(g => g.Price.GetValueOrDefault()).ToString("C2")
+                        </strong>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="card-body">
+                <p class="card-text text-body-secondary text-center">
+                    No gifts yet...
+                </p>
+            </div>
+        }
+
+        <div class="card-footer">
+            <div class="hstack flex-row-reverse justify-content-between">
+                <a asp-controller="Gift" asp-action="Index" asp-route-personId="@person.Id"
+                    class="btn btn-outline-primary btn-sm">
+                    Add Gift
+                </a>
+
+                <a asp-controller="Person" asp-action="Index" asp-route-id="@person.Id"
+                    class="btn btn-outline-secondary btn-sm">
+                    Edit Person
+                </a>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="text-center mb-3">
+    Grand Total:
+    <strong>
+        @Model.Gifts.Sum(g => g.Price.GetValueOrDefault()).ToString("C2")
+    </strong>
+</div>
