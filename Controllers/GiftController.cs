@@ -1,31 +1,22 @@
 using GiftsMVC.Models;
+using GiftsMVC.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GiftsMVC.Controllers;
 
-public class GiftController(IHttpClientFactory httpClientFactory) : Controller
+public class GiftController(GiftService giftService, PersonService personService) : Controller
 {
-    private readonly HttpClient _httpClient = httpClientFactory.CreateClient("GiftsAPI");
 
     [HttpGet]
     public async Task<IActionResult> IndexAsync(long personId, long id = 0)
     {
-        var personResponse = await _httpClient.GetAsync($"/api/person/{personId}");
-
-        if (!personResponse.IsSuccessStatusCode)
-            throw new Exception("Cannot retrieve data from the API");
-
-        var person = await personResponse.Content.ReadFromJsonAsync<PersonDto>();
-
         if (id == 0)
+        {
+            var person = await personService.GetPersonAsync(personId);
             return View(new GiftDto { Person = person! });
+        }
 
-        var response = await _httpClient.GetAsync($"/api/gift/{id}");
-
-        if (!response.IsSuccessStatusCode)
-            throw new Exception("Cannot retrieve data from the API");
-
-        var gift = await response.Content.ReadFromJsonAsync<GiftDto>();
+        var gift = await giftService.GetGiftAsync(id);
 
         return View(gift);
     }
@@ -36,12 +27,10 @@ public class GiftController(IHttpClientFactory httpClientFactory) : Controller
         if (!ModelState.IsValid)
             return View("Index", gift);
 
-        var response = gift.Id == 0
-            ? await _httpClient.PostAsJsonAsync("/api/gift", gift)
-            : await _httpClient.PutAsJsonAsync($"/api/gift/{gift.Id}", gift);
-
-        if (!response.IsSuccessStatusCode)
-            throw new Exception("Cannot save data to the API");
+        if (gift.Id == 0)
+            await giftService.CreateGiftAsync(gift);
+        else
+            await giftService.UpdateGiftAsync(gift);
 
         return RedirectToAction("Index", "Home");
     }
@@ -49,10 +38,7 @@ public class GiftController(IHttpClientFactory httpClientFactory) : Controller
     [HttpPost]
     public async Task<IActionResult> DeleteAsync(long id)
     {
-        var response = await _httpClient.DeleteAsync($"/api/gift/{id}");
-
-        if (!response.IsSuccessStatusCode)
-            throw new Exception("Cannot delete data from the API");
+        await giftService.DeleteGiftAsync(id);
 
         return RedirectToAction("Index", "Home");
     }

@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using GiftsMVC.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,10 +9,14 @@ builder.Services
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
+
 builder.Services.AddHttpClient("GiftsAPI", client =>
 {
     client.BaseAddress = new Uri(builder.Configuration.GetValue<string>("GiftsAPI:BaseUrl")!);
 });
+
+builder.Services.AddTransient<PersonService>();
+builder.Services.AddTransient<GiftService>();
 
 var app = builder.Build();
 

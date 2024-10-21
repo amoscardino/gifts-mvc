@@ -1,24 +1,18 @@
 using GiftsMVC.Models;
+using GiftsMVC.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GiftsMVC.Controllers;
 
-public class PersonController(IHttpClientFactory httpClientFactory) : Controller
+public class PersonController(PersonService personService) : Controller
 {
-    private readonly HttpClient _httpClient = httpClientFactory.CreateClient("GiftsAPI");
-
     [HttpGet]
     public async Task<IActionResult> IndexAsync(long id = 0)
     {
         if (id == 0)
             return View(new PersonDto());
 
-        var response = await _httpClient.GetAsync($"/api/person/{id}");
-
-        if (!response.IsSuccessStatusCode)
-            throw new Exception("Cannot retrieve data from the API");
-
-        var person = await response.Content.ReadFromJsonAsync<PersonDto>();
+        var person = await personService.GetPersonAsync(id);
 
         return View(person);
     }
@@ -29,12 +23,10 @@ public class PersonController(IHttpClientFactory httpClientFactory) : Controller
         if (!ModelState.IsValid)
             return View("Index", person);
 
-        var response = person.Id == 0
-            ? await _httpClient.PostAsJsonAsync("/api/person", person)
-            : await _httpClient.PutAsJsonAsync($"/api/person/{person.Id}", person);
-
-        if (!response.IsSuccessStatusCode)
-            throw new Exception("Cannot save data to the API");
+        if (person.Id == 0)
+            await personService.CreatePersonAsync(person);
+        else
+            await personService.UpdatePersonAsync(person);
 
         return RedirectToAction("Index", "Home");
     }
@@ -42,10 +34,7 @@ public class PersonController(IHttpClientFactory httpClientFactory) : Controller
     [HttpPost]
     public async Task<IActionResult> DeleteAsync(long id)
     {
-        var response = await _httpClient.DeleteAsync($"/api/person/{id}");
-
-        if (!response.IsSuccessStatusCode)
-            throw new Exception("Cannot delete data from the API");
+        await personService.DeletePersonAsync(id);
 
         return RedirectToAction("Index", "Home");
     }

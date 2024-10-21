@@ -1,0 +1,19 @@
+@{
+    Layout = "_Layout";
+}
+
+@section Styles {
+    @RenderSection("Styles", required: false)
+}
+
+@section Scripts {
+    @RenderSection("Scripts", required: false)
+}
+
+<div class="mb-3">
+    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+        Back
+    </a>
+</div>
+
+@RenderBody()
