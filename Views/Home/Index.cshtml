@@ -37,12 +37,9 @@
                                 </span>
                             </span>
 
-                            @if (gift is { Price: > 0 })
-                            {
-                                <span class="text-body-secondary">
-                                    @gift.Price.Value.ToString("C2")
-                                </span>
-                            }
+                            <span class="text-body-secondary">
+                                @gift.Price.GetValueOrDefault().ToString("C2")
+                            </span>
                         </div>
                     </a>
                 }
